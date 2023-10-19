@@ -30,6 +30,8 @@ async function run() {
         await client.connect();
         const amazonCollection = client.db("amazonDB").collection("amazon");
         const sliderCollection =client.db("sliderDB").collection("slider");
+        const cardCollection =client.db("sliderDB").collection("cards");
+        
 
 
         app.post('/amazon',async(req,res)=>{
@@ -37,6 +39,11 @@ async function run() {
             console.log(amazons)
             const result =await amazonCollection.insertOne(amazons)
             res.send(result)
+        })
+
+        app.get('/amazonall',async(req,res)=>{
+            const amazons =await amazonCollection.find().toArray()
+            res.send(amazons)
         })
 
         
@@ -83,6 +90,19 @@ async function run() {
              res.send(result)
         })
 
+        app.post('/addcard',async(req,res)=>{
+            const card =req.body;
+            const result =await cardCollection.insertOne(card)
+            res.send(result)
+        })
+        
+        app.get("/mycard",async(req,res)=>{
+       
+       const cards =await cardCollection.find().toArray()
+       res.send(cards)
+       
+       
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
