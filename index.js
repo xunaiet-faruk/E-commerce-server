@@ -29,6 +29,9 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
         const amazonCollection = client.db("amazonDB").collection("amazon");
+        const sliderCollection =client.db("sliderDB").collection("slider");
+
+
         app.post('/amazon',async(req,res)=>{
             const amazons =req.body
             console.log(amazons)
@@ -36,18 +39,48 @@ async function run() {
             res.send(result)
         })
 
+        
+
         app.get('/amazon/:brands',async(req,res)=>{
             const newbrands =req.params.brands;
             const result = await amazonCollection.find({brand_name : newbrands}).toArray();
             res.send(result)
         })
-        
+
         app.get('/product/:id',async(req,res)=>{
             const products = req.params.id
             const findid = { _id: new ObjectId(products)}
             const result = await amazonCollection.findOne(findid)
             res.send(result)
           
+        })
+
+        app.get('/slider/:names',async(req,res)=>{
+            const newSliders =req.params.names;
+            const result =await sliderCollection.find({name : newSliders}).toArray();
+            res.send(result)
+            
+                    
+        })
+
+        app.get('/amazon/:id',async(req,res)=>{
+            const id =req.params.id
+            const query ={_id : new ObjectId (id)}
+            const result =await amazonCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.put('/products/:id',async(req,res)=>{
+            const id =req.params.id;
+            const product =req.body
+            const filter ={_id : new ObjectId (id)};
+            const options = { upsert: false };
+            const updateproduct ={
+                $set :product
+            }
+            console.log(id,product)
+             const result =await amazonCollection.updateOne(filter,updateproduct,options)
+             res.send(result)
         })
 
 
