@@ -3,7 +3,7 @@
 
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app =express()
 const port =process.env.PORT || 5010;
 
@@ -40,6 +40,14 @@ async function run() {
             const newbrands =req.params.brands;
             const result = await amazonCollection.find({brand_name : newbrands}).toArray();
             res.send(result)
+        })
+        
+        app.get('/product/:id',async(req,res)=>{
+            const products = req.params.id
+            const findid = { _id: new ObjectId(products)}
+            const result = await amazonCollection.findOne(findid)
+            res.send(result)
+          
         })
 
 
