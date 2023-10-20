@@ -4,8 +4,8 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const app =express()
-const port =process.env.PORT || 5010;
+const app = express()
+const port = process.env.PORT || 5010;
 
 app.use(cors());
 app.use(express.json())
@@ -29,79 +29,87 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
         const amazonCollection = client.db("amazonDB").collection("amazon");
-        const sliderCollection =client.db("sliderDB").collection("slider");
-        const cardCollection =client.db("sliderDB").collection("cards");
-        
+        const sliderCollection = client.db("sliderDB").collection("slider");
+        const cardCollection = client.db("sliderDB").collection("cards");
 
 
-        app.post('/amazon',async(req,res)=>{
-            const amazons =req.body
+
+        app.post('/amazon', async (req, res) => {
+            const amazons = req.body
             console.log(amazons)
-            const result =await amazonCollection.insertOne(amazons)
+            const result = await amazonCollection.insertOne(amazons)
             res.send(result)
         })
 
-        app.get('/amazonall',async(req,res)=>{
-            const amazons =await amazonCollection.find().toArray()
+        app.get('/amazonall', async (req, res) => {
+            const amazons = await amazonCollection.find().toArray()
             res.send(amazons)
         })
 
-        
+        app.delete("/delete-cart/:id", async (req, res) => {
+            const id = req.params.id;
 
-        app.get('/amazon/:brands',async(req,res)=>{
-            const newbrands =req.params.brands;
-            const result = await amazonCollection.find({brand_name : newbrands}).toArray();
+            const filter = { productId: id };
+            const result = await cardCollection.deleteOne(filter);
+
             res.send(result)
         })
 
-        app.get('/product/:id',async(req,res)=>{
+
+        app.get('/amazon/:brands', async (req, res) => {
+            const newbrands = req.params.brands;
+            const result = await amazonCollection.find({ brand_name: newbrands }).toArray();
+            res.send(result)
+        })
+
+        app.get('/product/:id', async (req, res) => {
             const products = req.params.id
-            const findid = { _id: new ObjectId(products)}
+            const findid = { _id: new ObjectId(products) }
             const result = await amazonCollection.findOne(findid)
             res.send(result)
-          
+
         })
 
-        app.get('/slider/:names',async(req,res)=>{
-            const newSliders =req.params.names;
-            const result =await sliderCollection.find({name : newSliders}).toArray();
+        app.get('/slider/:names', async (req, res) => {
+            const newSliders = req.params.names;
+            const result = await sliderCollection.find({ name: newSliders }).toArray();
             res.send(result)
-            
-                    
+
+
         })
 
-        app.get('/amazon/:id',async(req,res)=>{
-            const id =req.params.id
-            const query ={_id : new ObjectId (id)}
-            const result =await amazonCollection.findOne(query)
+        app.get('/amazon/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await amazonCollection.findOne(query)
             res.send(result)
         })
 
-        app.put('/products/:id',async(req,res)=>{
-            const id =req.params.id;
-            const product =req.body
-            const filter ={_id : new ObjectId (id)};
+        app.put('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const product = req.body
+            const filter = { _id: new ObjectId(id) };
             const options = { upsert: false };
-            const updateproduct ={
-                $set :product
+            const updateproduct = {
+                $set: product
             }
-            console.log(id,product)
-             const result =await amazonCollection.updateOne(filter,updateproduct,options)
-             res.send(result)
-        })
-
-        app.post('/addcard',async(req,res)=>{
-            const card =req.body;
-            const result =await cardCollection.insertOne(card)
+            console.log(id, product)
+            const result = await amazonCollection.updateOne(filter, updateproduct, options)
             res.send(result)
         })
-        
-        app.get("/mycard",async(req,res)=>{
-       
-       const cards =await cardCollection.find().toArray()
-       res.send(cards)
-       
-       
+
+        app.post('/addcard', async (req, res) => {
+            const card = req.body;
+            const result = await cardCollection.insertOne(card)
+            res.send(result)
+        })
+
+        app.get("/mycard", async (req, res) => {
+
+            const cards = await cardCollection.find().toArray()
+            res.send(cards)
+
+
         })
 
         // Send a ping to confirm a successful connection
@@ -115,10 +123,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res) =>{
+app.get('/', (req, res) => {
     res.send('server is running now')
 })
 
-app.listen(port, () =>{
+app.listen(port, () => {
     console.log(`my port is running ${port}`)
 })
